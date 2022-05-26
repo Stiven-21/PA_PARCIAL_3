@@ -1,0 +1,55 @@
+{% extends './base/base.html' %}
+
+{% block estilos %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/body.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shortener.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+{% endblock %}
+{% block titulo %}
+    MY PROFILE
+{% endblock %}
+
+{% block contenido %}
+    <div class="container col-12 col-md-10 col-xl-9">
+        <div class="row row-spacing">
+            <div class="col-12 mb-3">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='images/shortener.png') }}" class="img-shortener" alt="shortener.png">
+                </div>
+            </div>
+            <div class="col-12 mb-3">
+                <form action="{{ url_for('Shortener') }}" method="POST">
+                    <div class="mb-1">
+                        <div class="text-start">
+                            <div class="text-white">Ingrese la url:</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="text-center">
+                            <input type="text" class="input-text" placeholder="http://example@domain.com" name="url" id="url" value="{{ url }}">
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 col-6 mx-auto mb-3">
+                        <button type="submit" class="boton boton-animation" >Shorten</button>
+                    </div>
+                </form>
+                {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <div class="row">
+                                {% for message in messages %}
+                                    <div class="col-12">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+
+{% block javascript %}
+    
+{% endblock %}
