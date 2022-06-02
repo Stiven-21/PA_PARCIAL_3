@@ -2,6 +2,7 @@ from controllers.validations.validations_controller import Val_url_youtube
 from urllib import parse, request
 from discord.ext import commands
 from discord.utils import get
+from config import settings
 import youtube_dl
 import datetime
 import discord
@@ -10,7 +11,6 @@ import sys
 import os
 import re
 
-token = 'OTc2NDk2OTYzNTQzNTE5Mjky.GTQrLv.1Tgr0oQZyFXL7GHVJxYOSAf5yf3srOVR_gFu2U' #TOKEN DE BOT --> SE GENERA CUANDO SE CREA EL BOT EN DISCORD
 bot = commands.Bot(command_prefix="?> ", description="Este es un bot para musica")#EL PREFIX ES PARA RECONOCER LOS COMANDOS "?>"
 
 @bot.event
@@ -221,10 +221,4 @@ async def youtube(ctx, *, search):
         print(search_result)
         await ctx.send('http://www.yotube.com/watch?v='+search_result[0])
     
-    
-    
-    
-
-    
-    
-bot.run(token)
+bot.run(settings.TOKEN_DISCORD)

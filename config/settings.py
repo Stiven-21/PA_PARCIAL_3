@@ -18,3 +18,5 @@ URL_PAGE = os.environ.get("URL_PAGE")
 
 ROUTE_IMAGE = os.environ.get("ROUTE_IMAGE")
 ROUTE_IMAGE_DEFAULT = os.environ.get("ROUTE_IMAGE_DEFAULT")
+
+TOKEN_DISCORD =os.environ.get("TOKEN_DISCORD")
