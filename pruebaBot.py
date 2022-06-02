@@ -1,4 +1,5 @@
 from controllers.validations.validations_controller import Val_url_youtube
+from urllib import parse, request
 from discord.ext import commands
 from discord.utils import get
 import youtube_dl
@@ -7,6 +8,7 @@ import discord
 import shutil
 import sys
 import os
+import re
 
 token = 'OTc2NDk2OTYzNTQzNTE5Mjky.GTQrLv.1Tgr0oQZyFXL7GHVJxYOSAf5yf3srOVR_gFu2U' #TOKEN DE BOT --> SE GENERA CUANDO SE CREA EL BOT EN DISCORD
 bot = commands.Bot(command_prefix="?> ", description="Este es un bot para musica")#EL PREFIX ES PARA RECONOCER LOS COMANDOS "?>"
@@ -26,7 +28,8 @@ async def ayuda(ctx):
     await ctx.send('?> pause => Pausa la reproduccion de audio')
     await ctx.send('?> resume => Reanuda la reproduccion de audio')
     await ctx.send('?> stop => Finaliza la reproduccion de audio')
-    await ctx.send('?> mp3 [URL DE YOUTUBE] => Envia el audio mp3 por mensaje privado')
+    await ctx.send('?> mp3 [URL DE YOUTUBE] [calidad de sonido] => Envia el audio mp3 por mensaje privado')
+    await ctx.send('[calidad de sonido] => 12, 32, 96, 128, 192 y 320')
     
 @bot.command()
 async def server(ctx):
@@ -79,18 +82,24 @@ async def play(ctx, url):
     voz = get(bot.voice_clients, guild=ctx.guild)
         
     try:
-        if not voz.is_playing():
-            with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(url, download=False)
-            URL = info['url']
-            name_cancion = info['title']
-            voz.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-            voz.is_playing()
-            message = "Reproduciendo: "+str(name_cancion)
-            embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.green())
-            await ctx.send(embed=embed)
+        if Val_url_youtube(url):
+            if not voz.is_playing():
+                with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                URL = info['url']
+                name_cancion = info['title']
+                voz.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+                voz.is_playing()
+                message = "Reproduciendo: "+str(name_cancion)
+                embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.green())
+                await ctx.send(embed=embed)
+            else:
+                message = "Ya hay una reproduccion de audio ejecutandose, espere a que finalice o ingrese el comando \'?> stop\'"
+                embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.red())
+                await ctx.send(embed=embed)
+                return
         else:
-            message = "Ya hay una reproduccion de audio ejecutandose, espere a que finalice o ingrese el comando \'?> stop\'"
+            message = "Error: esta url no es valida o no es de youtube"
             embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.red())
             await ctx.send(embed=embed)
             return
@@ -163,29 +172,37 @@ async def stop(ctx):
         return
     
 @bot.command(pass_context = True)
-async def mp3(ctx, url):
+async def mp3(ctx, url, calidad):
     if Val_url_youtube(url):
-        ydl_op = {
-            'format': 'bestaudio/best',
-            'noplaylist': 'True',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],    
-        }
-        with youtube_dl.YoutubeDL(ydl_op) as ydl:
-            info = ydl.extract_info(url, download=False)
-            ydl.download([url])
-            
-        new_name_mp3 = str(info['title'])+".mp3"
-        
-        for file in os.listdir('./'):
-            if file.endswith('.mp3'):
-                print(f"Renombrar archivo: {file}")
-                os.rename(file,new_name_mp3)
-        shutil.move(new_name_mp3, './static/music/'+str(new_name_mp3))
-        await ctx.author.send(file=discord.File('./static/music/'+str(new_name_mp3)))
+        if calidad=='16' or calidad=='32' or calidad=='96' or calidad=='128' or calidad=='192' or calidad=='320':
+            ydl_op = {
+                'format': 'bestaudio/best',
+                'noplaylist': 'True',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': calidad,
+                }],    
+            }
+            with youtube_dl.YoutubeDL(ydl_op) as ydl:
+                info = ydl.extract_info(url, download=False)
+                await ctx.author.send("Trabajando en proceso de descarga: "+str(info['title'])+", calidad de sonido: "+calidad+" Kbps, esto puede tardar unos segundos tenga paciencia!")
+                
+                new_name_mp3 = str(info['title'])+"-"+calidad+".mp3"
+                if not os.path.isfile('./static/music/'+str(new_name_mp3)):
+                    ydl.download([url])
+                    
+                    for file in os.listdir('./'):
+                        if file.endswith('.mp3'):
+                            print(f"Renombrar archivo: {file}")
+                            os.rename(file,new_name_mp3)
+                    shutil.move(new_name_mp3, './static/music/'+str(new_name_mp3))
+            await ctx.author.send(file=discord.File('./static/music/'+str(new_name_mp3)))
+        else:
+            message = "Error: las calidades de audio permitidas son 12, 32, 96, 128, 192 y 320 Kbps"
+            embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.red())
+            await ctx.send(embed=embed)
+            return
     else:
         message = "Error: esta url no es valida o no es de youtube"
         embed = discord.Embed(title=f"{ctx.guild.name}", description=message, timestamp=datetime.datetime.utcnow(), color=discord.Color.red())
@@ -193,7 +210,7 @@ async def mp3(ctx, url):
         return
 
 #LO COMENTADO BUSCABA EN YOUTUBE Y RETORNABA EL PRIMER ENLACE DE LA BUSQUEDA
-"""@bot.command()
+@bot.command()
 async def youtube(ctx, *, search):
     query_string = parse.urlencode({'search_query': search})
     html_content = request.urlopen('http://www.youtube.com/results?' + query_string)
@@ -202,7 +219,7 @@ async def youtube(ctx, *, search):
         await ctx.send("No se encontraron resultados")
     else:
         print(search_result)
-        await ctx.send('http://www.yotube.com/watch?v='+search_result[0])"""
+        await ctx.send('http://www.yotube.com/watch?v='+search_result[0])
     
     
     
