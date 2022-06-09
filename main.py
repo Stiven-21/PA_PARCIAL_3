@@ -243,7 +243,7 @@ def redirection(shortener):
         return render_template("error/url_not_exist.html")
     return redirect(url)
 
-app.run(debug=True)
+#app.run(debug=True)
 
 #JAMES CORDOBA.
 #DARIEN MIRANDA.
