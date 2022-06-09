@@ -23,13 +23,14 @@ CREATE TABLE IF NOT EXISTS `acortador` (
   `short_url` varchar(50) DEFAULT NULL,
   `large_url` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id_acortador`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- Volcando datos para la tabla parcial_3.acortador: ~0 rows (aproximadamente)
 DELETE FROM `acortador`;
 /*!40000 ALTER TABLE `acortador` DISABLE KEYS */;
 INSERT INTO `acortador` (`id_acortador`, `short_url`, `large_url`) VALUES
-	(1, 'http://127.0.0.1:5000/YYZ', 'https://www.scribd.com/document/438920790/OPTIMIZACION-docx');
+	(1, 'http://127.0.0.1:5000/YYZ', 'https://www.scribd.com/document/438920790/OPTIMIZACION-docx'),
+	(2, 'http://127.0.0.1:5000/cHE', 'https://www.youtube.com/watch?v=05r7WsIXT-A&ab_channel=FaztCode');
 /*!40000 ALTER TABLE `acortador` ENABLE KEYS */;
 
 -- Volcando estructura para tabla parcial_3.archivos
