@@ -1,6 +1,6 @@
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory
 from controllers.file import create_file_controller, edit_file_controller, delete_file_controller, preview_file_controller, download_file_controller
 from controllers.account import forward_token_controller, activate_account_controller, recover_account_controller, form_password_controller
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory
 from controllers.consult_database import get_archives_controllers, get_users_controller
 from controllers.validations import validations_controller
 from controllers.redirect import redirect_url_controller
